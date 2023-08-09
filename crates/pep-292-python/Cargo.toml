@@ -1,0 +1,13 @@
+[package]
+name = "pep-292-python"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "pep_292_python"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3.workspace = true
+pep-292.workspace = true
