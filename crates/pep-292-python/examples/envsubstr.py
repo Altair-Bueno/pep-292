@@ -4,4 +4,4 @@ from os import environ
 
 template = Template(stdin.read())
 res = template.substitute(**environ)
-print(res)
+print(res, end='')
