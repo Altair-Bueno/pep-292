@@ -16,10 +16,7 @@ use std::io::stdin;
 fn main() {
     let stdin = stdin().lock();
     let input = read_to_string(stdin).expect("Only valid UTF-8 strings are supported");
-    let template = Template::new(input);
     let environment = vars().collect::<HashMap<String, String>>();
-    let output = template
-        .substitute(&environment)
-        .expect("Substitution error");
+    let output = input.substitute(&environment).expect("Substitution error");
     print!("{output}")
 }

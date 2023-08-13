@@ -6,33 +6,31 @@ use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::hash::BuildHasher;
 use std::hash::Hash;
-use std::ops::Deref;
 use winnow::stream::Offset;
 use winnow::stream::Stream;
 use winnow::*;
 
-#[derive(Debug, PartialEq, Eq)]
-#[repr(transparent)]
-pub struct Template<T> {
-    template: T,
+pub trait Template {
+    fn substitute<'input, K, V, S>(
+        &'input self,
+        map: &HashMap<K, V, S>,
+    ) -> Result<String, TemplateError<'input>>
+    where
+        K: Borrow<str> + Hash + PartialEq + Eq,
+        V: AsRef<str>,
+        S: BuildHasher;
+    fn safe_substitute<'input, K, V, S>(
+        &'input self,
+        map: &HashMap<K, V, S>,
+    ) -> Result<String, TemplateError<'input>>
+    where
+        K: Borrow<str> + Hash + PartialEq + Eq,
+        V: AsRef<str>,
+        S: BuildHasher;
 }
 
-impl<T> Deref for Template<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.template
-    }
-}
-
-impl<S> Template<S> {
-    pub fn new(template: S) -> Self {
-        Self { template }
-    }
-}
-
-impl<T: AsRef<str>> Template<T> {
-    pub fn substitute<'input, K, V, S>(
+impl Template for str {
+    fn substitute<'input, K, V, S>(
         &'input self,
         map: &HashMap<K, V, S>,
     ) -> Result<String, TemplateError<'input>>
@@ -42,7 +40,7 @@ impl<T: AsRef<str>> Template<T> {
         S: BuildHasher,
     {
         // Work with bytes as it is more performant. We only ask for str to ensure everything is UTF-8 encoded
-        let mut input = self.template.as_ref().as_bytes();
+        let mut input = self.as_bytes();
         let mut buff = Vec::with_capacity(input.len() * 2);
 
         let checkpoint = input.checkpoint();
@@ -61,7 +59,7 @@ impl<T: AsRef<str>> Template<T> {
         Ok(s)
     }
 
-    pub fn safe_substitute<'input, K, V, S>(
+    fn safe_substitute<'input, K, V, S>(
         &'input self,
         map: &HashMap<K, V, S>,
     ) -> Result<String, TemplateError<'input>>
@@ -71,7 +69,7 @@ impl<T: AsRef<str>> Template<T> {
         S: BuildHasher,
     {
         // Work with bytes as it is more performant. We only ask for str to ensure everything is UTF-8 encoded
-        let mut input = self.template.as_ref().as_bytes();
+        let mut input = self.as_bytes();
         let mut buff = Vec::with_capacity(input.len() * 2);
 
         let checkpoint = input.checkpoint();

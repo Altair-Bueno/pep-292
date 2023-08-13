@@ -14,7 +14,6 @@ fn test_substitute(
     #[case] map: HashMap<&str, &str>,
     #[case] expected: Result<String, TemplateError>,
 ) {
-    let template = Template::new(input);
-    let res = template.substitute(&map);
+    let res = input.substitute(&map);
     assert_that!(res).is_equal_to(expected)
 }
