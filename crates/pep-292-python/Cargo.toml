@@ -5,7 +5,7 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "pep_292_python"
+name = "pep_292"
 crate-type = ["cdylib"]
 
 [dependencies]

@@ -1,4 +1,4 @@
-from pep_292_python import Template 
+from pep_292 import Template 
 from sys import stdin
 from os import environ
 

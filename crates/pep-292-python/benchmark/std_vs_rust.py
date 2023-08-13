@@ -24,9 +24,9 @@ py = Timer('template.substitute(**subs)', globals={
 py_time = py.timeit(ITERATIONS)
 print(f"Python took {py_time}s")
 
-import pep_292_python
+import pep_292
 rust = Timer('template.substitute(**subs)', globals={
-    "template": pep_292_python.Template(template),
+    "template": pep_292.Template(template),
     "subs": subs,
 })
 rust_time = rust.timeit(ITERATIONS)
