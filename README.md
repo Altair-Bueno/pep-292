@@ -3,5 +3,5 @@ Rust using [winnow](https://crates.io/crates/winnow)'s parser combinators.
 
 # Packages
 
-- `crates/pep-292`: Core parser implementation
-- `crates/pep-292-python`: Bindings for Python
+- `pep-292`: Core parser implementation
+- `pep-292-python`: Bindings for Python

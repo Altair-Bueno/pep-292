@@ -10,7 +10,25 @@ use winnow::stream::Offset;
 use winnow::stream::Stream;
 use winnow::*;
 
+/// A trait used to extend `str` with Simple String Substitutions as defined by
+/// [PEP-292]
+///
+///
+/// ```
+/// use pep_292::Template;
+/// use std::collections::HashMap;
+///
+/// let values = HashMap::from([
+///     ("name", "Alice"),
+/// ]);
+/// let result = "Hi $name".substitute(&values);
+/// assert_eq!(result, Ok("Hi Alice".into()));
+/// ```
+///
+/// [PEP-292]: https://peps.python.org/pep-0292
 pub trait Template {
+    /// Substitute the placeholders found on the input using the given map. If a
+    /// placeholder is not present, a [TemplateError::KeyError] will be returned.
     fn substitute<'input, K, V, S>(
         &'input self,
         map: &HashMap<K, V, S>,
@@ -19,6 +37,8 @@ pub trait Template {
         K: Borrow<str> + Hash + PartialEq + Eq,
         V: AsRef<str>,
         S: BuildHasher;
+    /// Substitute the placeholders found on the input using the given map. If a
+    /// placeholder is not present, it won't be replaced.
     fn safe_substitute<'input, K, V, S>(
         &'input self,
         map: &HashMap<K, V, S>,

@@ -18,20 +18,17 @@ pub enum Token<'slice> {
     Content(&'slice [u8]),
 }
 
-// TODO use partial instead or generalize input
-pub type Input<'i> = &'i [u8];
-
 #[inline]
-fn identifier_first<'i, E>(input: &mut Input<'i>) -> PResult<u8, E>
+fn identifier_first<'i, E>(input: &mut &'i [u8]) -> PResult<u8, E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     token::one_of((AsChar::is_alpha, b'_')).parse_next(input)
 }
 #[inline]
-fn identifier_rest<'i, E>(input: &mut Input<'i>) -> PResult<&'i [u8], E>
+fn identifier_rest<'i, E>(input: &mut &'i [u8]) -> PResult<&'i [u8], E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     token::take_while(0.., (AsChar::is_alphanum, b'_')).parse_next(input)
 }
@@ -40,9 +37,9 @@ where
 ///
 /// [identifier]: https://docs.python.org/release/2.6/reference/lexical_analysis.html#identifiers-and-keywords
 #[inline]
-fn identifier<'i, E>(input: &mut Input<'i>) -> PResult<&'i [u8], E>
+fn identifier<'i, E>(input: &mut &'i [u8]) -> PResult<&'i [u8], E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     (identifier_first, identifier_rest)
         .recognize()
@@ -50,9 +47,9 @@ where
 }
 
 #[inline]
-fn simple_placeholder<'i, E>(input: &mut Input<'i>) -> PResult<&'i [u8], E>
+fn simple_placeholder<'i, E>(input: &mut &'i [u8]) -> PResult<&'i [u8], E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     combinator::preceded(b'$', identifier)
         .context("simple placeholder")
@@ -60,9 +57,9 @@ where
 }
 
 #[inline]
-fn bracket_placeholder<'i, E>(input: &mut Input<'i>) -> PResult<&'i [u8], E>
+fn bracket_placeholder<'i, E>(input: &mut &'i [u8]) -> PResult<&'i [u8], E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     combinator::preceded(b'$', combinator::delimited(b'{', identifier, b'}'))
         .context("bracket placeholder")
@@ -70,17 +67,17 @@ where
 }
 
 #[inline]
-fn escape<'i, E>(input: &mut Input<'i>) -> PResult<(), E>
+fn escape<'i, E>(input: &mut &'i [u8]) -> PResult<(), E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     "$$".void().parse_next(input)
 }
 
 #[inline]
-fn content<'i, E>(input: &mut Input<'i>) -> PResult<&'i [u8], E>
+fn content<'i, E>(input: &mut &'i [u8]) -> PResult<&'i [u8], E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     if input.contains(&b'$') {
         token::take_till1(b'$').parse_next(input)
@@ -94,9 +91,9 @@ where
 /// [winnow]: winnow
 /// [PEP-292]: https://peps.python.org/pep-0292
 #[inline]
-pub fn token<'i, E>(input: &mut Input<'i>) -> PResult<Token<'i>, E>
+pub fn token<'i, E>(input: &mut &'i [u8]) -> PResult<Token<'i>, E>
 where
-    E: ParserError<Input<'i>> + AddContext<Input<'i>, &'static str>,
+    E: ParserError<&'i [u8]> + AddContext<&'i [u8], &'static str>,
 {
     combinator::alt((
         content.map(Token::Content),
@@ -166,7 +163,7 @@ mod test {
     #[case::brackets(b"${hello}", Some(Token::BracketPlaceholder(b"hello")))]
     #[case::content(b"some random text {}", Some(Token::Content(b"some random text {}")))]
     #[trace]
-    fn test_token(#[case] input: &[u8], #[case] expected: Option<Token>) {
+    fn test_token(#[case] input: &[u8], #[case] expected: Option<Token<'_>>) {
         let res = token::<()>.parse(input);
         assert_that!(res.ok()).is_equal_to(expected)
     }

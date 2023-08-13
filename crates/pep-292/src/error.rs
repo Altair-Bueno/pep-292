@@ -2,9 +2,19 @@ use std::error::Error;
 use std::fmt::Debug;
 use std::fmt::Display;
 
+/// Possible errors returned by [Template::substitute] and
+/// [Template::safe_substitute]
+///
+/// [Template::substitute]: crate::Template::substitute
+/// [Template::safe_substitute]: crate::Template::safe_substitute
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateError<'input> {
-    ParserError { position: usize },
+    /// The input is not a valid template string
+    ParserError {
+        /// Position (in bytes) where the template error was found.
+        position: usize,
+    },
+    /// A key was missing from the substitutions map.
     KeyError(&'input str),
 }
 
