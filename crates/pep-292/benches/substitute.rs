@@ -15,8 +15,7 @@ This is an example text of what can be done with string substition. Each
 A $identifier can be used, also $$ scapes and brackets ${identifier} 
 "#,
     );
-    let template = Template::new(input);
-    c.bench_function("substitute", |b| b.iter(|| template.substitute(&map)));
+    c.bench_function("substitute", |b| b.iter(|| input.substitute(&map)));
 }
 
 criterion_group!(benches, criterion_benchmark);
