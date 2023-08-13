@@ -32,4 +32,4 @@ rust = Timer('template.substitute(**subs)', globals={
 rust_time = rust.timeit(ITERATIONS)
 print(f"Rust took {rust_time}s")
 
-print(f'Python vs Rust: ±{rust_time/py_time * 100}%')
+print(f'Python vs Rust: ±{rust_time/py_time * 100:.2f}%')
